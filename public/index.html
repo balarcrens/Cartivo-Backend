@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartivo API | Backend Ecosystem</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            width: 100%;
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: white;
+            position: relative;
+        }
+
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('bg.png') no-repeat center center/cover;
+            filter: brightness(0.4);
+            z-index: -1;
+            animation: zoom 20s infinite alternate linear;
+        }
+
+        @keyframes zoom {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.1);
+            }
+        }
+
+        .glass-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 90%;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .brand-logo {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 255, 127, 0.1);
+            color: #00ff7f;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 255, 127, 0.2);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff7f;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px #00ff7f;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .docs-button {
+            display: inline-block;
+            background: white;
+            color: black;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .docs-button:hover {
+            background: transparent;
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .footer {
+            margin-top: 3rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background"></div>
+
+    <div class="glass-container">
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            Operational Systems
+        </div>
+        <div class="brand-logo">CARTIVO</div>
+        <h1>Powering the next generation of eCommerce.</h1>
+        <p style="color: rgba(255, 255, 255, 0.6); margin-bottom: 2rem; font-size: 0.9rem;">
+            Welcome to the heartbeat of the Cartivo ecosystem. Our APIs are ready and waiting for your requests.
+        </p>
+        <a href="/health" class="docs-button">Check API Health</a>
+        <div class="footer">
+            Powered by Node.js & PostgreSQL
+        </div>
+    </div>
+</body>
+
+</html>
