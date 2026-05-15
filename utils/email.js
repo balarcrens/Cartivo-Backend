@@ -4,11 +4,14 @@ const sendEmail = async (options) => {
     // 1) Create a transporter
     // If using Gmail, 'service: gmail' is the most reliable way
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,
-        }
+        },
+        family: 4 // This is critical to bypass the IPv6 ENETUNREACH error
     });
 
     // Verify connection configuration
