@@ -1,5 +1,5 @@
 const ImageKit = require("imagekit");
-require('@dotenvx/dotenvx').config({ quiet: true });
+require('dotenv').config({ quiet: true });
 
 const imagekit = new ImageKit({
     publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
