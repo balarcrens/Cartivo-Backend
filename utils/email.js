@@ -1,14 +1,24 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
+    // 1) Create a transporter
+    // If using Gmail, 'service: gmail' is the most reliable way
     const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
+        service: 'gmail',
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,
         },
     });
+
+    // Verify connection configuration
+    try {
+        await transporter.verify();
+        console.log('Server is ready to take our messages');
+    } catch (error) {
+        console.error('Nodemailer verify error:', error);
+        throw error;
+    }
 
     const mailOptions = {
         from: process.env.EMAIL_FROM,
