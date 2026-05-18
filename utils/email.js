@@ -1,36 +1,24 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
-    // 1) Create a transporter
-    // If using Gmail, 'service: gmail' is the most reliable way
     const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
+        service: 'gmail',
         auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
         },
-        family: 4 // This is critical to bypass the IPv6 ENETUNREACH error
     });
 
-    // Verify connection configuration
-    try {
-        await transporter.verify();
-        console.log('Server is ready to take our messages');
-    } catch (error) {
-        console.error('Nodemailer verify error:', error);
-        throw error;
-    }
-
-    const mailOptions = {
-        from: process.env.EMAIL_FROM,
+    const message = {
+        from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
         to: options.email,
         subject: options.subject,
         html: options.html,
     };
 
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(message);
+
+    console.log('Message sent: %s', info.messageId);
 };
 
 const getResetPasswordTemplate = (url, name) => {
