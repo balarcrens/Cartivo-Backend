@@ -101,7 +101,6 @@ exports.forgotPassword = async (req, res) => {
                 message: 'Token sent to email!'
             });
         } catch (err) {
-            // If email fails, clear token fields
             await pool.query(
                 'UPDATE public.users SET reset_password_token = NULL, reset_password_expires = NULL WHERE id = $1',
                 [user.id]
@@ -110,7 +109,7 @@ exports.forgotPassword = async (req, res) => {
             return res.status(500).json({ 
                 status: 'error',
                 message: 'There was an error sending the email. Try again later',
-                error: err.message // Send error message for easier debugging
+                error: err.message
             });
         }
     } catch (error) {

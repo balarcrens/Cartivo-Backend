@@ -2,7 +2,10 @@ const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        family: 4, // FORCE IPv4
         auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS,
@@ -18,7 +21,7 @@ const sendEmail = async (options) => {
 
     const info = await transporter.sendMail(message);
 
-    console.log('Message sent: %s', info.messageId);
+    console.log('Message sent:', info.messageId);
 };
 
 const getResetPasswordTemplate = (url, name) => {
