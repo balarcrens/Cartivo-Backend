@@ -27,57 +27,220 @@ const sendEmail = async (options) => {
 const getResetPasswordTemplate = (url, name) => {
     return `
     <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Reset Your Password</title>
-        <style>
-            body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f7ff; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
-            .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05); }
-            .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 60px 40px; text-align: center; }
-            .header h1 { color: #ffffff; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
-            .content { padding: 50px 40px; color: #1f2937; line-height: 1.6; }
-            .content h2 { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #111827; }
-            .content p { font-size: 16px; margin-bottom: 30px; color: #4b5563; }
-            .button-container { text-align: center; margin: 40px 0; }
-            .button { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff !important; padding: 18px 45px; text-decoration: none; border-radius: 16px; font-weight: 700; font-size: 16px; display: inline-block; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15); transition: all 0.3s ease; }
-            .footer { background-color: #f9fafb; padding: 40px; text-align: center; border-top: 1px solid #f1f5f9; }
-            .footer p { font-size: 14px; color: #9ca3af; margin: 0; }
-            .warning { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
-            .warning p { color: #92400e; font-size: 14px; margin: 0; font-weight: 500; }
-            .logo { font-size: 28px; font-weight: 900; color: #ffffff; letter-spacing: -1px; margin-bottom: 15px; display: block; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <span class="logo">CARTIVO</span>
-                <h1>Reset Your Password</h1>
-            </div>
-            <div class="content">
-                <h2>Hello ${name},</h2>
-                <p>We received a request to reset the password for your Cartivo account. No problem! Just click the button below to set a new one.</p>
-                
-                <div class="warning">
-                    <p>⚠️ This link is only valid for <strong>2 minutes</strong> for security reasons. If you didn't request this, you can safely ignore this email.</p>
-                </div>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <title>Reset Your Password</title>
 
-                <div class="button-container">
-                    <a href="${url}" class="button">Reset Password</a>
-                </div>
+                <style>
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
 
-                <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
-                <p style="word-break: break-all; font-size: 14px; color: #6366f1;">${url}</p>
-            </div>
-            <div class="footer">
-                <p>&copy; 2026 Cartivo E-commerce. All rights reserved.</p>
-                <p>Curating the Best Collection for You.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    `;
+                    body {
+                        background-color: #f4f7fb;
+                        font-family: Arial, Helvetica, sans-serif;
+                        color: #1f2937;
+                        padding: 30px 15px;
+                        -webkit-font-smoothing: antialiased;
+                    }
+
+                    .email-wrapper {
+                        max-width: 620px;
+                        margin: 0 auto;
+                        background: #ffffff;
+                        border-radius: 20px;
+                        overflow: hidden;
+                        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
+                    }
+
+                    .header {
+                        background: linear-gradient(135deg, #111827, #1f2937);
+                        padding: 50px 40px;
+                        text-align: center;
+                    }
+
+                    .logo {
+                        color: #ffffff;
+                        font-size: 30px;
+                        font-weight: 800;
+                        letter-spacing: 2px;
+                        margin-bottom: 12px;
+                    }
+
+                    .header h1 {
+                        color: #ffffff;
+                        font-size: 30px;
+                        font-weight: 700;
+                    }
+
+                    .content {
+                        padding: 45px 40px;
+                    }
+
+                    .greeting {
+                        font-size: 22px;
+                        font-weight: 700;
+                        margin-bottom: 20px;
+                        color: #111827;
+                    }
+
+                    .text {
+                        font-size: 16px;
+                        line-height: 1.8;
+                        color: #4b5563;
+                        margin-bottom: 22px;
+                    }
+
+                    .security-box {
+                        background: #fff7ed;
+                        border: 1px solid #fed7aa;
+                        border-radius: 14px;
+                        padding: 18px 20px;
+                        margin: 30px 0;
+                    }
+
+                    .security-box p {
+                        font-size: 14px;
+                        line-height: 1.7;
+                        color: #9a3412;
+                    }
+
+                    .button-wrapper {
+                        text-align: center;
+                        margin: 40px 0;
+                    }
+
+                    .button {
+                        display: inline-block;
+                        background: #111827;
+                        color: #ffffff !important;
+                        text-decoration: none;
+                        padding: 16px 38px;
+                        border-radius: 12px;
+                        font-size: 16px;
+                        font-weight: 700;
+                    }
+
+                    .link-box {
+                        margin-top: 30px;
+                        background: #f9fafb;
+                        border-radius: 12px;
+                        padding: 16px;
+                        word-break: break-word;
+                    }
+
+                    .link-box a {
+                        color: #2563eb;
+                        font-size: 14px;
+                        text-decoration: none;
+                    }
+
+                    .footer {
+                        border-top: 1px solid #e5e7eb;
+                        background: #f9fafb;
+                        padding: 30px 25px;
+                        text-align: center;
+                    }
+
+                    .footer p {
+                        font-size: 13px;
+                        color: #6b7280;
+                        line-height: 1.7;
+                    }
+
+                    .footer .brand {
+                        font-weight: 700;
+                        color: #111827;
+                    }
+
+                    @media only screen and (max-width: 600px) {
+                        .header,
+                        .content,
+                        .footer {
+                                padding: 30px 22px;
+                        }
+
+                        .header h1 {
+                            font-size: 26px;
+                        }
+
+                        .greeting {
+                            font-size: 20px;
+                        }
+
+                        .button {
+                            width: 100%;
+                            text-align: center;
+                        }
+                    }
+                </style>
+            </head>
+
+            <body>
+                <div class="email-wrapper">
+
+                    <div class="header">
+                        <div class="logo">CARTIVO</div>
+                        <h1>Password Reset Request</h1>
+                    </div>
+
+                    <div class="content">
+
+                        <div class="greeting">
+                            Hello ${name},
+                        </div>
+
+                        <p class="text">
+                            We received a request to reset the password for your Cartivo account.
+                            Click the button below to create a new password and regain access to your account securely.
+                        </p>
+
+                        <div class="security-box">
+                            <p>
+                                ⚠️ For security reasons, this password reset link will expire in
+                                <strong>2 minutes</strong>.
+                                If you did not request a password reset, you can safely ignore this email.
+                            </p>
+                        </div>
+
+                        <div class="button-wrapper">
+                            <a href="${url}" class="button">
+                                Reset Password
+                            </a>
+                        </div>
+
+                        <p class="text" style="margin-bottom: 12px;">
+                            If the button above does not work, copy and paste the following link into your browser:
+                        </p>
+
+                        <div class="link-box">
+                            <a href="${url}">
+                                ${url}
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <div class="footer">
+                        <p class="brand">Cartivo</p>
+
+                        <p>
+                            Secure shopping experience for modern customers.
+                        </p>
+
+                        <p style="margin-top: 10px;">
+                            © 2026 Cartivo. All rights reserved.
+                        </p>
+                    </div>
+
+                </div>
+            </body>
+        </html>
+`;
 };
 
 module.exports = { sendEmail, getResetPasswordTemplate };
