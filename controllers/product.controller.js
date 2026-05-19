@@ -83,8 +83,8 @@ exports.getAllProducts = async (req, res) => {
         let orderBy = 'p.created_at DESC';
         if (sort) {
             switch (sort) {
-                case 'price-asc': orderBy = 'p.price ASC'; break;
-                case 'price-desc': orderBy = 'p.price DESC'; break;
+                case 'low-to-high': orderBy = 'p.price ASC'; break;
+                case 'high-to-low': orderBy = 'p.price DESC'; break;
                 case 'newest': orderBy = 'p.created_at DESC'; break;
                 case 'popular': orderBy = 'p.created_at ASC'; break;
             }
