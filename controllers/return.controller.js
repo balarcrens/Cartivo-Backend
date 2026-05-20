@@ -60,7 +60,7 @@ exports.requestReturn = async (req, res) => {
         });
 
     } catch (error) {
-    console.error(error);
+        console.error(error);
         await client.query('ROLLBACK');
         console.error('Return request error:', error);
         res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -84,7 +84,7 @@ exports.getOrderReturnStatus = async (req, res) => {
             data: { return_request: returnRes.rows[0] || null }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         console.error('Get return status error:', error);
         res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
@@ -106,7 +106,7 @@ exports.getAllReturns = async (req, res) => {
             data: { returns: returnsRes.rows }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         console.error('Get all returns error:', error);
         res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
@@ -157,7 +157,7 @@ exports.updateReturnStatus = async (req, res) => {
         });
 
     } catch (error) {
-    console.error(error);
+        console.error(error);
         await client.query('ROLLBACK');
         console.error('Update return status error:', error);
         res.status(500).json({ status: 'error', message: 'Internal server error' });

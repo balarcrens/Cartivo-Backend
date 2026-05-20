@@ -21,7 +21,7 @@ exports.registerVendor = async (req, res) => {
 
         res.status(201).json({ status: 'success', data: { vendor: newVendor.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -32,7 +32,7 @@ exports.getVendorProfile = async (req, res) => {
         if (vendor.rowCount === 0) return res.status(404).json({ message: 'No vendor profile found' });
         res.status(200).json({ status: 'success', data: { vendor: vendor.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -53,7 +53,7 @@ exports.updateVendorProfile = async (req, res) => {
         if (updatedVendor.rowCount === 0) return res.status(404).json({ message: 'No vendor profile found' });
         res.status(200).json({ status: 'success', data: { vendor: updatedVendor.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -63,7 +63,7 @@ exports.getAllVendors = async (req, res) => {
         const vendors = await pool.query('SELECT v.*, u.name as owner_name, u.email as owner_email FROM vendors v JOIN users u ON v.user_id = u.id ORDER BY v.created_at DESC');
         res.status(200).json({ status: 'success', results: vendors.rowCount, data: { vendors: vendors.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -78,7 +78,7 @@ exports.verifyVendor = async (req, res) => {
         if (updatedVendor.rowCount === 0) return res.status(404).json({ message: 'Vendor not found' });
         res.status(200).json({ status: 'success', data: { vendor: updatedVendor.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

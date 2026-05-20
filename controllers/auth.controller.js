@@ -28,7 +28,7 @@ exports.signup = async (req, res) => {
             data: { user: newUser.rows[0] }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -57,7 +57,7 @@ exports.login = async (req, res) => {
             data: { user }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -88,7 +88,7 @@ exports.forgotPassword = async (req, res) => {
         );
 
         const resetURL = `${process.env.FRONTEND_URL}/auth/reset-password/${resetToken}`;
-        
+
         try {
             await sendEmail({
                 email: user.email,
@@ -106,7 +106,7 @@ exports.forgotPassword = async (req, res) => {
                 [user.id]
             );
             console.error('ERROR SENDING EMAIL:', err);
-            return res.status(500).json({ 
+            return res.status(500).json({
                 status: 'error',
                 message: 'There was an error sending the email. Try again later',
                 error: err.message

@@ -6,7 +6,7 @@ exports.getAllBanners = async (req, res) => {
         const banners = await pool.query('SELECT * FROM hero_banners ORDER BY display_order ASC, created_at DESC');
         res.status(200).json({ status: 'success', data: { banners: banners.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -14,7 +14,7 @@ exports.getAllBanners = async (req, res) => {
 exports.createBanner = async (req, res) => {
     try {
         let { title, subtitle, description, image_url, button_text, link_url, is_active, display_order } = req.body;
-        
+
         if (image_url && image_url.startsWith('data:image')) {
             const uploadedUrl = await uploadToImageKit(image_url, '/HeroBanners', `hero-${Date.now()}`);
             image_url = uploadedUrl;
@@ -28,7 +28,7 @@ exports.createBanner = async (req, res) => {
 
         res.status(201).json({ status: 'success', data: { banner: newBanner.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -36,7 +36,7 @@ exports.createBanner = async (req, res) => {
 exports.updateBanner = async (req, res) => {
     try {
         let { title, subtitle, description, image_url, button_text, link_url, is_active, display_order } = req.body;
-        
+
         if (image_url && image_url.startsWith('data:image')) {
             const uploadedUrl = await uploadToImageKit(image_url, '/HeroBanners', `hero-${Date.now()}`);
             image_url = uploadedUrl;
@@ -54,7 +54,7 @@ exports.updateBanner = async (req, res) => {
         if (updatedBanner.rowCount === 0) return res.status(404).json({ message: 'Banner not found' });
         res.status(200).json({ status: 'success', data: { banner: updatedBanner.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -65,7 +65,7 @@ exports.deleteBanner = async (req, res) => {
         if (result.rowCount === 0) return res.status(404).json({ message: 'Banner not found' });
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

@@ -30,7 +30,7 @@ exports.createReview = async (req, res) => {
             }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -56,7 +56,7 @@ exports.getProductReviews = async (req, res) => {
             }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

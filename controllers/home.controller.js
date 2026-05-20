@@ -7,14 +7,18 @@ exports.getHomeData = async (req, res) => {
         const categoriesPromise = pool.query("SELECT * FROM categories WHERE status = 'active' AND parent_id IS NULL ORDER BY created_at LIMIT 10");
 
         const featuredPromise = pool.query(`
-            SELECT p.*, b.name as brand_name 
+            SELECT p.*, b.name as brand_name,
+                   COALESCE(
+                       (SELECT json_agg(r.rating) FROM product_reviews r WHERE r.product_id = p.id),
+                       '[]'::json
+                   ) as ratings
             FROM products p 
             LEFT JOIN brands b ON p.brand_id = b.id 
             WHERE p.status = 'active' 
             ORDER BY p.created_at DESC 
             LIMIT 10
         `);
-        
+
         const winterPromise = pool.query(`
             WITH RECURSIVE CategoryTree AS (
                 SELECT id FROM categories 
@@ -23,7 +27,11 @@ exports.getHomeData = async (req, res) => {
                 SELECT c.id FROM categories c
                 JOIN CategoryTree ct ON c.parent_id = ct.id
             )
-            SELECT p.*, b.name as brand_name 
+            SELECT p.*, b.name as brand_name,
+                   COALESCE(
+                       (SELECT json_agg(r.rating) FROM product_reviews r WHERE r.product_id = p.id),
+                       '[]'::json
+                   ) as ratings
             FROM products p 
             LEFT JOIN brands b ON p.brand_id = b.id
             WHERE p.category_id IN (SELECT id FROM CategoryTree)
@@ -32,7 +40,11 @@ exports.getHomeData = async (req, res) => {
         `);
 
         const trendingPromise = pool.query(`
-            SELECT p.*, b.name as brand_name 
+            SELECT p.*, b.name as brand_name,
+                   COALESCE(
+                       (SELECT json_agg(r.rating) FROM product_reviews r WHERE r.product_id = p.id),
+                       '[]'::json
+                   ) as ratings
             FROM products p 
             LEFT JOIN brands b ON p.brand_id = b.id
             WHERE p.status = 'active' 
@@ -47,7 +59,11 @@ exports.getHomeData = async (req, res) => {
                 SELECT c.id FROM categories c
                 JOIN CategoryTree ct ON c.parent_id = ct.id
             )
-            SELECT p.*, b.name as brand_name 
+            SELECT p.*, b.name as brand_name,
+                   COALESCE(
+                       (SELECT json_agg(r.rating) FROM product_reviews r WHERE r.product_id = p.id),
+                       '[]'::json
+                   ) as ratings
             FROM products p 
             LEFT JOIN brands b ON p.brand_id = b.id
             WHERE p.category_id IN (SELECT id FROM CategoryTree)
@@ -63,7 +79,11 @@ exports.getHomeData = async (req, res) => {
                 SELECT c.id FROM categories c
                 JOIN CategoryTree ct ON c.parent_id = ct.id
             )
-            SELECT p.*, b.name as brand_name 
+            SELECT p.*, b.name as brand_name,
+                   COALESCE(
+                       (SELECT json_agg(r.rating) FROM product_reviews r WHERE r.product_id = p.id),
+                       '[]'::json
+                   ) as ratings
             FROM products p 
             LEFT JOIN brands b ON p.brand_id = b.id
             WHERE p.category_id IN (SELECT id FROM CategoryTree)
@@ -88,7 +108,7 @@ exports.getHomeData = async (req, res) => {
             }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

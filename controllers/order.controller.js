@@ -103,7 +103,7 @@ exports.createOrder = async (req, res) => {
                     }
                 }
             }
-            
+
             // Update coupon usage
             if (applied_coupon_id) {
                 await client.query('UPDATE coupons SET usage_count = usage_count + 1 WHERE id = $1', [applied_coupon_id]);
@@ -130,7 +130,7 @@ exports.createOrder = async (req, res) => {
             };
 
             const razorpayOrder = await rzp.orders.create(options);
-            
+
             await client.query('COMMIT');
             return res.status(200).json({
                 status: 'success',
@@ -150,7 +150,7 @@ exports.createOrder = async (req, res) => {
         }
 
     } catch (error) {
-    console.error(error);
+        console.error(error);
         await client.query('ROLLBACK');
         console.error('Order creation error:', error);
         res.status(400).json({ status: 'fail', message: error.message || 'Failed to place order' });
@@ -204,7 +204,7 @@ exports.verifyPayment = async (req, res) => {
             if (couponRes.rowCount > 0) {
                 const coupon = couponRes.rows[0];
                 if (subtotal >= parseFloat(coupon.min_order_value)) {
-                    discount_amount = coupon.discount_type === 'percentage' 
+                    discount_amount = coupon.discount_type === 'percentage'
                         ? Math.min((subtotal * parseFloat(coupon.value)) / 100, parseFloat(coupon.max_discount || Infinity))
                         : parseFloat(coupon.value);
                     applied_coupon_id = coupon.id;
@@ -275,7 +275,7 @@ exports.verifyPayment = async (req, res) => {
         res.status(200).json({ status: 'success', message: 'Payment verified and order created', order_id: order.id });
 
     } catch (error) {
-    console.error(error);
+        console.error(error);
         await client.query('ROLLBACK');
         console.error('Payment verification error:', error);
         res.status(400).json({ status: 'fail', message: error.message || 'Payment verification failed' });
@@ -299,7 +299,7 @@ exports.getMyOrders = async (req, res) => {
         );
         res.status(200).json({ status: 'success', data: { orders: orders.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -308,7 +308,7 @@ exports.getOrder = async (req, res) => {
     try {
         const order = await pool.query('SELECT * FROM orders WHERE id = $1', [req.params.id]);
         if (order.rowCount === 0) return res.status(404).json({ message: 'Order not found' });
-        
+
         if (order.rows[0].user_id !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ message: 'Permission denied' });
         }
@@ -319,7 +319,7 @@ exports.getOrder = async (req, res) => {
              FROM order_items oi 
              JOIN products p ON oi.product_id = p.id
              LEFT JOIN product_variants v ON oi.variant_id = v.id
-             WHERE oi.order_id = $1`, 
+             WHERE oi.order_id = $1`,
             [req.params.id]
         );
 
@@ -328,16 +328,16 @@ exports.getOrder = async (req, res) => {
             [req.params.id]
         );
 
-        res.status(200).json({ 
-            status: 'success', 
-            data: { 
-                order: order.rows[0], 
+        res.status(200).json({
+            status: 'success',
+            data: {
+                order: order.rows[0],
                 items: items.rows,
                 history: history.rows
-            } 
+            }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -345,7 +345,7 @@ exports.getOrder = async (req, res) => {
 exports.updateStatus = async (req, res) => {
     try {
         const { status, payment_status, comment } = req.body;
-        
+
         let updateQuery = 'UPDATE orders SET updated_at = CURRENT_TIMESTAMP';
         const queryParams = [];
         let paramCount = 1;
@@ -366,7 +366,7 @@ exports.updateStatus = async (req, res) => {
         queryParams.push(req.params.id);
 
         const updatedOrder = await pool.query(updateQuery, queryParams);
-        
+
         if (updatedOrder.rowCount === 0) return res.status(404).json({ message: 'Order not found' });
 
         if (status) {
@@ -378,7 +378,7 @@ exports.updateStatus = async (req, res) => {
 
         res.status(200).json({ status: 'success', data: { order: updatedOrder.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -388,7 +388,7 @@ exports.getAllOrders = async (req, res) => {
         const orders = await pool.query('SELECT o.*, u.name as user_name FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC');
         res.status(200).json({ status: 'success', results: orders.rowCount, data: { orders: orders.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

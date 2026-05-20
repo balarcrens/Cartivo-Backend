@@ -91,7 +91,11 @@ exports.getAllProducts = async (req, res) => {
         }
 
         const query = `
-            SELECT p.*, c.name as category_name, b.name as brand_name, b.slug as brand_slug
+            SELECT p.*, c.name as category_name, b.name as brand_name, b.slug as brand_slug,
+                   COALESCE(
+                       (SELECT json_agg(r.rating) FROM product_reviews r WHERE r.product_id = p.id),
+                       '[]'::json
+                   ) as ratings
             FROM products p 
             LEFT JOIN categories c ON p.category_id = c.id 
             LEFT JOIN brands b ON p.brand_id = b.id
@@ -106,7 +110,7 @@ exports.getAllProducts = async (req, res) => {
             data: { products: products.rows }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -115,7 +119,11 @@ exports.getAllProducts = async (req, res) => {
 exports.getProduct = async (req, res) => {
     try {
         const product = await pool.query(`
-            SELECT p.*, c.name as category_name, c.slug as category_slug, b.name as brand_name, b.slug as brand_slug
+            SELECT p.*, c.name as category_name, c.slug as category_slug, b.name as brand_name, b.slug as brand_slug,
+                   COALESCE(
+                       (SELECT json_agg(r.rating) FROM product_reviews r WHERE r.product_id = p.id),
+                       '[]'::json
+                   ) as ratings
             FROM products p 
             LEFT JOIN categories c ON p.category_id = c.id 
             LEFT JOIN brands b ON p.brand_id = b.id
@@ -127,7 +135,7 @@ exports.getProduct = async (req, res) => {
 
         res.status(200).json({ status: 'success', data: { product: product.rows[0], variants: variants.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -135,7 +143,11 @@ exports.getProduct = async (req, res) => {
 exports.getProductBySlug = async (req, res) => {
     try {
         const product = await pool.query(`
-            SELECT p.*, c.name as category_name, c.slug as category_slug, b.name as brand_name, b.slug as brand_slug
+            SELECT p.*, c.name as category_name, c.slug as category_slug, b.name as brand_name, b.slug as brand_slug,
+                   COALESCE(
+                       (SELECT json_agg(r.rating) FROM product_reviews r WHERE r.product_id = p.id),
+                       '[]'::json
+                   ) as ratings
             FROM products p 
             LEFT JOIN categories c ON p.category_id = c.id 
             LEFT JOIN brands b ON p.brand_id = b.id
@@ -147,7 +159,7 @@ exports.getProductBySlug = async (req, res) => {
 
         res.status(200).json({ status: 'success', data: { product: product.rows[0], variants: variants.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -167,7 +179,7 @@ exports.createProduct = async (req, res) => {
         category_id = category_id || null;
         vendor_id = vendor_id || null;
         brand_id = brand_id || null;
-        
+
         const uploadedImages = [];
         if (images && Array.isArray(images)) {
             for (let i = 0; i < images.length; i++) {
@@ -217,7 +229,7 @@ exports.createProduct = async (req, res) => {
         await client.query('COMMIT');
         res.status(201).json({ status: 'success', data: { product: newProduct.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         await client.query('ROLLBACK');
         res.status(400).json({ status: 'fail', message: error.message });
     } finally {
@@ -230,7 +242,7 @@ exports.updateProduct = async (req, res) => {
     try {
         await client.query('BEGIN');
         let { name, description, category_id, vendor_id, brand_id, price, discount, stock, status, images, attributes, variants } = req.body;
-        
+
         let slug = name ? slugify(name, { lower: true, strict: true }) : null;
 
         if (price !== undefined) price = parseFloat(price) || 0;
@@ -254,7 +266,7 @@ exports.updateProduct = async (req, res) => {
             }
             finalImages = JSON.stringify(uploadedImages);
         }
-        
+
         const updatedProduct = await client.query(
             `UPDATE products SET 
                 name = COALESCE($1, name), 
@@ -321,7 +333,7 @@ exports.updateProduct = async (req, res) => {
         await client.query('COMMIT');
         res.status(200).json({ status: 'success', data: { product: updatedProduct.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         await client.query('ROLLBACK');
         res.status(400).json({ status: 'fail', message: error.message });
     } finally {
@@ -335,7 +347,7 @@ exports.deleteProduct = async (req, res) => {
         if (result.rowCount === 0) return res.status(404).json({ message: 'Product not found' });
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

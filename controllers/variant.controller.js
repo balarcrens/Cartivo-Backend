@@ -19,7 +19,7 @@ exports.getAllVariants = async (req, res) => {
         const variants = await pool.query('SELECT * FROM product_variants WHERE product_id = $1 ORDER BY created_at DESC', [productId]);
         res.status(200).json({ status: 'success', results: variants.rowCount, data: { variants: variants.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -30,7 +30,7 @@ exports.getVariant = async (req, res) => {
         if (variant.rowCount === 0) return res.status(404).json({ message: 'Variant not found' });
         res.status(200).json({ status: 'success', data: { variant: variant.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -69,7 +69,7 @@ exports.createVariant = async (req, res) => {
         await client.query('COMMIT');
         res.status(201).json({ status: 'success', data: { variant: newVariant.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         await client.query('ROLLBACK');
         res.status(400).json({ status: 'fail', message: error.message });
     } finally {
@@ -109,9 +109,9 @@ exports.updateVariant = async (req, res) => {
                 images = COALESCE($6, images)
             WHERE id = $7 RETURNING *`,
             [
-                name, sku, price, stock, 
-                variant_attributes ? JSON.stringify(variant_attributes) : null, 
-                images ? JSON.stringify(images) : null, 
+                name, sku, price, stock,
+                variant_attributes ? JSON.stringify(variant_attributes) : null,
+                images ? JSON.stringify(images) : null,
                 req.params.id
             ]
         );
@@ -122,7 +122,7 @@ exports.updateVariant = async (req, res) => {
         await client.query('COMMIT');
         res.status(200).json({ status: 'success', data: { variant: updatedVariant.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         await client.query('ROLLBACK');
         res.status(400).json({ status: 'fail', message: error.message });
     } finally {
@@ -147,7 +147,7 @@ exports.deleteVariant = async (req, res) => {
         await client.query('COMMIT');
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         await client.query('ROLLBACK');
         res.status(400).json({ status: 'fail', message: error.message });
     } finally {

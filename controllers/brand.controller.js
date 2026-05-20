@@ -12,7 +12,7 @@ exports.getAllBrands = async (req, res) => {
         `);
         res.status(200).json({ status: 'success', data: { brands: brands.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -36,7 +36,7 @@ exports.getBrandsByCategory = async (req, res) => {
         `, [categoryId]);
         res.status(200).json({ status: 'success', data: { brands: brands.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -56,7 +56,7 @@ exports.createBrand = async (req, res) => {
         );
         res.status(201).json({ status: 'success', data: { brand: newBrand.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -77,7 +77,7 @@ exports.updateBrand = async (req, res) => {
         if (updatedBrand.rowCount === 0) return res.status(404).json({ message: 'Brand not found' });
         res.status(200).json({ status: 'success', data: { brand: updatedBrand.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -88,7 +88,7 @@ exports.deleteBrand = async (req, res) => {
         if (result.rowCount === 0) return res.status(404).json({ message: 'Brand not found' });
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

@@ -5,7 +5,7 @@ exports.getAddresses = async (req, res) => {
         const addresses = await pool.query('SELECT * FROM user_addresses WHERE user_id = $1 ORDER BY is_default DESC, created_at DESC', [req.user.id]);
         res.status(200).json({ status: 'success', data: { addresses: addresses.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -26,7 +26,7 @@ exports.addAddress = async (req, res) => {
 
         res.status(201).json({ status: 'success', data: { address: newAddress.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -57,7 +57,7 @@ exports.updateAddress = async (req, res) => {
         if (updatedAddress.rowCount === 0) return res.status(404).json({ message: 'Address not found' });
         res.status(200).json({ status: 'success', data: { address: updatedAddress.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -67,7 +67,7 @@ exports.deleteAddress = async (req, res) => {
         const result = await pool.query('DELETE FROM user_addresses WHERE id = $1 AND user_id = $2', [req.params.id, req.user.id]);
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -82,7 +82,7 @@ exports.setDefaultAddress = async (req, res) => {
         if (updatedAddress.rowCount === 0) return res.status(404).json({ message: 'Address not found' });
         res.status(200).json({ status: 'success', data: { address: updatedAddress.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

@@ -23,7 +23,7 @@ exports.getCart = async (req, res) => {
             data: { cart, subtotal, totalItems }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -47,7 +47,7 @@ exports.addToCart = async (req, res) => {
         );
         res.status(201).json({ status: 'success', data: { item: item.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -57,7 +57,7 @@ exports.removeFromCart = async (req, res) => {
         await pool.query('DELETE FROM cart_items WHERE id = $1 AND user_id = $2', [req.params.id, req.user.id]);
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -67,7 +67,7 @@ exports.clearCart = async (req, res) => {
         await pool.query('DELETE FROM cart_items WHERE user_id = $1', [req.user.id]);
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -75,7 +75,11 @@ exports.clearCart = async (req, res) => {
 exports.getWishlist = async (req, res) => {
     try {
         const wishlist = await pool.query(
-            `SELECT w.*, p.name, p.price, p.images, p.slug, c.name as category_name 
+            `SELECT w.*, p.name, p.price, p.images, p.slug, c.name as category_name,
+                    COALESCE(
+                        (SELECT json_agg(r.rating) FROM product_reviews r WHERE r.product_id = p.id),
+                        '[]'::json
+                    ) as ratings
              FROM wishlist w 
              JOIN products p ON w.product_id = p.id 
              LEFT JOIN categories c ON p.category_id = c.id
@@ -84,7 +88,7 @@ exports.getWishlist = async (req, res) => {
         );
         res.status(200).json({ status: 'success', data: { wishlist: wishlist.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -98,7 +102,7 @@ exports.addToWishlist = async (req, res) => {
         );
         res.status(201).json({ status: 'success', data: { item: item.rows?.[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -124,7 +128,7 @@ exports.updateCartQuantity = async (req, res) => {
             data: updated.rows[0]
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -134,7 +138,7 @@ exports.removeFromWishlist = async (req, res) => {
         await pool.query('DELETE FROM wishlist WHERE product_id = $1 AND user_id = $2', [req.params.id, req.user.id]);
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

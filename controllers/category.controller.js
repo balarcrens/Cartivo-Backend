@@ -17,11 +17,11 @@ exports.getAllCategories = async (req, res) => {
         }
 
         query += ' ORDER BY name ASC';
-        
+
         const categories = await pool.query(query, queryParams);
         res.status(200).json({ status: 'success', data: { categories: categories.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -47,16 +47,16 @@ exports.getCategoryTree = async (req, res) => {
             SELECT * FROM category_tree ORDER BY level, name;
         `;
         const result = await pool.query(query);
-        
+
         // Build the nested structure
         const categories = result.rows;
         const map = {};
         const roots = [];
-        
+
         categories.forEach(cat => {
             map[cat.id] = { ...cat, children: [] };
         });
-        
+
         categories.forEach(cat => {
             if (cat.parent_id && map[cat.parent_id]) {
                 map[cat.parent_id].children.push(map[cat.id]);
@@ -67,7 +67,7 @@ exports.getCategoryTree = async (req, res) => {
 
         res.status(200).json({ status: 'success', data: { categories: roots } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -91,15 +91,15 @@ exports.getCategoryBySlug = async (req, res) => {
         `;
         const path = await pool.query(pathQuery, [category.rows[0].id]);
 
-        res.status(200).json({ 
-            status: 'success', 
-            data: { 
+        res.status(200).json({
+            status: 'success',
+            data: {
                 category: category.rows[0],
                 path: path.rows
-            } 
+            }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -120,7 +120,7 @@ exports.createCategory = async (req, res) => {
         );
         res.status(201).json({ status: 'success', data: { category: newCategory.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -141,7 +141,7 @@ exports.updateCategory = async (req, res) => {
         if (updatedCategory.rowCount === 0) return res.status(404).json({ message: 'Category not found' });
         res.status(200).json({ status: 'success', data: { category: updatedCategory.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -152,7 +152,7 @@ exports.deleteCategory = async (req, res) => {
         if (result.rowCount === 0) return res.status(404).json({ message: 'Category not found' });
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

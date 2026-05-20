@@ -5,7 +5,7 @@ exports.getAllCoupons = async (req, res) => {
         const coupons = await pool.query('SELECT * FROM coupons ORDER BY created_at DESC');
         res.status(200).json({ status: 'success', results: coupons.rowCount, data: { coupons: coupons.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -28,11 +28,11 @@ exports.getActiveCoupons = async (req, res) => {
         }
 
         query += " ORDER BY created_at DESC";
-        
+
         const coupons = await pool.query(query, params);
         res.status(200).json({ status: 'success', results: coupons.rowCount, data: { coupons: coupons.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -45,7 +45,7 @@ exports.getCouponByCode = async (req, res) => {
         if (coupon.rowCount === 0) return res.status(404).json({ message: 'Coupon not found or expired' });
 
         const c = coupon.rows[0];
-        
+
         if (c.usage_limit && c.usage_count >= c.usage_limit) {
             return res.status(400).json({ message: 'Coupon usage limit reached' });
         }
@@ -62,7 +62,7 @@ exports.getCouponByCode = async (req, res) => {
 
         res.status(200).json({ status: 'success', data: { coupon: c } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -77,7 +77,7 @@ exports.createCoupon = async (req, res) => {
         );
         res.status(201).json({ status: 'success', data: { coupon: newCoupon.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -101,7 +101,7 @@ exports.updateCoupon = async (req, res) => {
         if (updatedCoupon.rowCount === 0) return res.status(404).json({ message: 'Coupon not found' });
         res.status(200).json({ status: 'success', data: { coupon: updatedCoupon.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -112,7 +112,7 @@ exports.deleteCoupon = async (req, res) => {
         if (result.rowCount === 0) return res.status(404).json({ message: 'Coupon not found' });
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

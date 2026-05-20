@@ -45,7 +45,7 @@ exports.getDashboardStats = async (req, res) => {
             }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -59,7 +59,7 @@ exports.getRecentOrders = async (req, res) => {
             ORDER BY o.created_at DESC 
             LIMIT 5
         `);
-        
+
         res.status(200).json({
             status: 'success',
             data: {
@@ -67,7 +67,7 @@ exports.getRecentOrders = async (req, res) => {
             }
         });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };

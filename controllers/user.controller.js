@@ -15,7 +15,7 @@ exports.getUser = async (req, res) => {
         if (user.rowCount === 0) return res.status(404).json({ message: 'User not found' });
         res.status(200).json({ status: 'success', data: { user: user.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -34,7 +34,7 @@ exports.updateMe = async (req, res) => {
         );
         res.status(200).json({ status: 'success', data: { user: updatedUser.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -44,7 +44,7 @@ exports.getAllUsers = async (req, res) => {
         const users = await pool.query('SELECT id, name, email, phone, role, status, created_at FROM users ORDER BY created_at DESC');
         res.status(200).json({ status: 'success', results: users.rowCount, data: { users: users.rows } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -59,7 +59,7 @@ exports.updateUserStatus = async (req, res) => {
         if (updatedUser.rowCount === 0) return res.status(404).json({ message: 'User not found' });
         res.status(200).json({ status: 'success', data: { user: updatedUser.rows[0] } });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
@@ -70,7 +70,7 @@ exports.deleteUser = async (req, res) => {
         if (result.rowCount === 0) return res.status(404).json({ message: 'User not found' });
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-    console.error(error);
+        console.error(error);
         res.status(400).json({ status: 'fail', message: error.message });
     }
 };
