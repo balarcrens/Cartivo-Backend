@@ -11,7 +11,7 @@ exports.requestReturn = async (req, res) => {
         }
 
         const orderRes = await client.query(
-            'SELECT * FROM public.orders WHERE id = $1 AND user_id = $2',
+            'SELECT * FROM orders WHERE id = $1 AND user_id = $2',
             [order_id, user_id]
         );
 
@@ -35,7 +35,7 @@ exports.requestReturn = async (req, res) => {
         }
 
         const existingRequest = await client.query(
-            'SELECT id FROM public.return_requests WHERE order_id = $1',
+            'SELECT id FROM return_requests WHERE order_id = $1',
             [order_id]
         );
 
@@ -46,7 +46,7 @@ exports.requestReturn = async (req, res) => {
         await client.query('BEGIN');
 
         const returnRes = await client.query(
-            `INSERT INTO public.return_requests (order_id, user_id, reason, images, status) 
+            `INSERT INTO return_requests (order_id, user_id, reason, images, status) 
              VALUES ($1, $2, $3, $4, $5) RETURNING *`,
             [order_id, user_id, reason, JSON.stringify(images), 'pending']
         );
@@ -75,7 +75,7 @@ exports.getOrderReturnStatus = async (req, res) => {
         const user_id = req.user.id;
 
         const returnRes = await pool.query(
-            'SELECT * FROM public.return_requests WHERE order_id = $1 AND user_id = $2',
+            'SELECT * FROM return_requests WHERE order_id = $1 AND user_id = $2',
             [orderId, user_id]
         );
 
@@ -94,9 +94,9 @@ exports.getAllReturns = async (req, res) => {
     try {
         const returnsRes = await pool.query(`
             SELECT rr.*, o.total_price, o.payment_status, o.status as order_status, u.name as user_name, u.email as user_email
-            FROM public.return_requests rr
-            JOIN public.orders o ON rr.order_id = o.id
-            JOIN public.users u ON rr.user_id = u.id
+            FROM return_requests rr
+            JOIN orders o ON rr.order_id = o.id
+            JOIN users u ON rr.user_id = u.id
             ORDER BY rr.created_at DESC
         `);
 
@@ -121,7 +121,7 @@ exports.updateReturnStatus = async (req, res) => {
         await client.query('BEGIN');
 
         const returnRes = await client.query(
-            `UPDATE public.return_requests 
+            `UPDATE return_requests 
              SET status = $1, admin_comment = $2, updated_at = CURRENT_TIMESTAMP 
              WHERE id = $3 RETURNING *`,
             [status, admin_comment, id]
@@ -136,14 +136,14 @@ exports.updateReturnStatus = async (req, res) => {
 
         if (order_status) {
             await client.query(
-                'UPDATE public.orders SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+                'UPDATE orders SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
                 [order_status, returnRequest.order_id]
             );
         }
 
         if (payment_status) {
             await client.query(
-                'UPDATE public.orders SET payment_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+                'UPDATE orders SET payment_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
                 [payment_status, returnRequest.order_id]
             );
         }

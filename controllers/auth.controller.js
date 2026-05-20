@@ -16,7 +16,7 @@ exports.signup = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 12);
 
         const newUser = await pool.query(
-            'INSERT INTO public.users (name, email, password, phone, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role',
+            'INSERT INTO users (name, email, password, phone, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role',
             [name, email, hashedPassword, phone, role || 'customer']
         );
 
@@ -41,7 +41,7 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: 'Please provide email and password' });
         }
 
-        const userResult = await pool.query('SELECT * FROM public.users WHERE email = $1', [email]);
+        const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         const user = userResult.rows[0];
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -70,7 +70,7 @@ exports.forgotPassword = async (req, res) => {
             return res.status(400).json({ message: 'Please provide an email address' });
         }
 
-        const userResult = await pool.query('SELECT id, name, email FROM public.users WHERE email = $1', [email]);
+        const userResult = await pool.query('SELECT id, name, email FROM users WHERE email = $1', [email]);
         const user = userResult.rows[0];
 
         if (!user) {
@@ -83,7 +83,7 @@ exports.forgotPassword = async (req, res) => {
         const expires = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
 
         await pool.query(
-            'UPDATE public.users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3',
+            'UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3',
             [hashedToken, expires, user.id]
         );
 
@@ -102,7 +102,7 @@ exports.forgotPassword = async (req, res) => {
             });
         } catch (err) {
             await pool.query(
-                'UPDATE public.users SET reset_password_token = NULL, reset_password_expires = NULL WHERE id = $1',
+                'UPDATE users SET reset_password_token = NULL, reset_password_expires = NULL WHERE id = $1',
                 [user.id]
             );
             console.error('ERROR SENDING EMAIL:', err);
@@ -123,7 +123,7 @@ exports.resetPassword = async (req, res) => {
         const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
 
         const userResult = await pool.query(
-            'SELECT id FROM public.users WHERE reset_password_token = $1 AND reset_password_expires > $2',
+            'SELECT id FROM users WHERE reset_password_token = $1 AND reset_password_expires > $2',
             [hashedToken, new Date()]
         );
         const user = userResult.rows[0];
@@ -140,7 +140,7 @@ exports.resetPassword = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 12);
 
         await pool.query(
-            'UPDATE public.users SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2',
+            'UPDATE users SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2',
             [hashedPassword, user.id]
         );
 

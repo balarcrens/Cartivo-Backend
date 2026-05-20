@@ -13,7 +13,7 @@ exports.protect = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userResult = await pool.query('SELECT * FROM public.users WHERE id = $1', [decoded.id]);
+        const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.id]);
 
         if (userResult.rowCount === 0) {
             return res.status(401).json({ message: 'The user belonging to this token no longer exists' });

@@ -3,12 +3,12 @@ const pool = require('../config/db');
 // Helper to update product total stock
 const updateProductStock = async (productId, client = pool) => {
     const result = await client.query(
-        'SELECT SUM(stock) as total_stock FROM public.product_variants WHERE product_id = $1',
+        'SELECT SUM(stock) as total_stock FROM product_variants WHERE product_id = $1',
         [productId]
     );
     const totalStock = parseInt(result.rows[0].total_stock) || 0;
     await client.query(
-        'UPDATE public.products SET stock = $1 WHERE id = $2',
+        'UPDATE products SET stock = $1 WHERE id = $2',
         [totalStock, productId]
     );
 };
@@ -16,7 +16,7 @@ const updateProductStock = async (productId, client = pool) => {
 exports.getAllVariants = async (req, res) => {
     try {
         const { productId } = req.params;
-        const variants = await pool.query('SELECT * FROM public.product_variants WHERE product_id = $1 ORDER BY created_at DESC', [productId]);
+        const variants = await pool.query('SELECT * FROM product_variants WHERE product_id = $1 ORDER BY created_at DESC', [productId]);
         res.status(200).json({ status: 'success', results: variants.rowCount, data: { variants: variants.rows } });
     } catch (error) {
     console.error(error);
@@ -26,7 +26,7 @@ exports.getAllVariants = async (req, res) => {
 
 exports.getVariant = async (req, res) => {
     try {
-        const variant = await pool.query('SELECT * FROM public.product_variants WHERE id = $1', [req.params.id]);
+        const variant = await pool.query('SELECT * FROM product_variants WHERE id = $1', [req.params.id]);
         if (variant.rowCount === 0) return res.status(404).json({ message: 'Variant not found' });
         res.status(200).json({ status: 'success', data: { variant: variant.rows[0] } });
     } catch (error) {
@@ -43,7 +43,7 @@ exports.createVariant = async (req, res) => {
 
         // 1. Check uniqueness: check if variant with same attributes already exists for this product
         const existingVariant = await client.query(
-            'SELECT * FROM public.product_variants WHERE product_id = $1 AND variant_attributes = $2',
+            'SELECT * FROM product_variants WHERE product_id = $1 AND variant_attributes = $2',
             [product_id, JSON.stringify(variant_attributes || {})]
         );
 
@@ -58,7 +58,7 @@ exports.createVariant = async (req, res) => {
         }
 
         const newVariant = await client.query(
-            `INSERT INTO public.product_variants (product_id, name, sku, price, stock, variant_attributes, images) 
+            `INSERT INTO product_variants (product_id, name, sku, price, stock, variant_attributes, images) 
              VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
             [product_id, finalName || 'Default Variant', sku, price, stock || 0, JSON.stringify(variant_attributes || {}), JSON.stringify(images || [])]
         );
@@ -84,14 +84,14 @@ exports.updateVariant = async (req, res) => {
         const { name, sku, price, stock, variant_attributes, images } = req.body;
 
         // Fetch existing variant to get product_id
-        const variantData = await client.query('SELECT * FROM public.product_variants WHERE id = $1', [req.params.id]);
+        const variantData = await client.query('SELECT * FROM product_variants WHERE id = $1', [req.params.id]);
         if (variantData.rowCount === 0) throw new Error('Variant not found');
         const productId = variantData.rows[0].product_id;
 
         // Check uniqueness if attributes are being changed
         if (variant_attributes) {
             const existingVariant = await client.query(
-                'SELECT * FROM public.product_variants WHERE product_id = $1 AND variant_attributes = $2 AND id != $3',
+                'SELECT * FROM product_variants WHERE product_id = $1 AND variant_attributes = $2 AND id != $3',
                 [productId, JSON.stringify(variant_attributes), req.params.id]
             );
             if (existingVariant.rowCount > 0) {
@@ -100,7 +100,7 @@ exports.updateVariant = async (req, res) => {
         }
 
         const updatedVariant = await client.query(
-            `UPDATE public.product_variants SET 
+            `UPDATE product_variants SET 
                 name = COALESCE($1, name), 
                 sku = COALESCE($2, sku), 
                 price = COALESCE($3, price), 
@@ -135,11 +135,11 @@ exports.deleteVariant = async (req, res) => {
     try {
         await client.query('BEGIN');
         // Fetch variant to get product_id before deleting
-        const variantData = await client.query('SELECT product_id FROM public.product_variants WHERE id = $1', [req.params.id]);
+        const variantData = await client.query('SELECT product_id FROM product_variants WHERE id = $1', [req.params.id]);
         if (variantData.rowCount === 0) throw new Error('Variant not found');
         const productId = variantData.rows[0].product_id;
 
-        await client.query('DELETE FROM public.product_variants WHERE id = $1', [req.params.id]);
+        await client.query('DELETE FROM product_variants WHERE id = $1', [req.params.id]);
 
         // Update Product Total Stock
         await updateProductStock(productId, client);

@@ -19,7 +19,7 @@ exports.createReview = async (req, res) => {
         }
 
         const newReview = await pool.query(
-            'INSERT INTO public.product_reviews (product_id, user_id, rating, comment, images) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            'INSERT INTO product_reviews (product_id, user_id, rating, comment, images) VALUES ($1, $2, $3, $4, $5) RETURNING *',
             [product_id, user_id, rating, comment, JSON.stringify(uploadedImages)]
         );
 
@@ -41,8 +41,8 @@ exports.getProductReviews = async (req, res) => {
 
         const reviews = await pool.query(
             `SELECT r.*, u.name as user_name, u.profile_image 
-             FROM public.product_reviews r 
-             JOIN public.users u ON r.user_id = u.id 
+             FROM product_reviews r 
+             JOIN users u ON r.user_id = u.id 
              WHERE r.product_id = $1 
              ORDER BY r.created_at DESC`,
             [product_id]

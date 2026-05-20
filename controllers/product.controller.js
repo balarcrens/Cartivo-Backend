@@ -3,17 +3,17 @@ const slugify = require('slugify');
 const { uploadToImageKit } = require('../config/imagekit');
 
 const updateProductStock = async (productId, client = pool) => {
-    const variantCountResult = await client.query('SELECT count(*) FROM public.product_variants WHERE product_id = $1', [productId]);
+    const variantCountResult = await client.query('SELECT count(*) FROM product_variants WHERE product_id = $1', [productId]);
     const hasVariants = parseInt(variantCountResult.rows[0].count) > 0;
 
     if (hasVariants) {
         const result = await client.query(
-            'SELECT SUM(stock) as total_stock FROM public.product_variants WHERE product_id = $1',
+            'SELECT SUM(stock) as total_stock FROM product_variants WHERE product_id = $1',
             [productId]
         );
         const totalStock = parseInt(result.rows[0].total_stock) || 0;
         await client.query(
-            'UPDATE public.products SET stock = $1 WHERE id = $2',
+            'UPDATE products SET stock = $1 WHERE id = $2',
             [totalStock, productId]
         );
     }
@@ -38,17 +38,17 @@ exports.getAllProducts = async (req, res) => {
                 p.category_id IN (
                     WITH RECURSIVE 
                     target_cat AS (
-                        SELECT id, parent_id FROM public.categories WHERE slug = $${queryParams.length}
+                        SELECT id, parent_id FROM categories WHERE slug = $${queryParams.length}
                     ),
                     descendants AS (
                         SELECT id FROM target_cat
                         UNION ALL
-                        SELECT c.id FROM public.categories c JOIN descendants d ON c.parent_id = d.id
+                        SELECT c.id FROM categories c JOIN descendants d ON c.parent_id = d.id
                     ),
                     ancestors AS (
                         SELECT id, parent_id FROM target_cat
                         UNION ALL
-                        SELECT c.id, c.parent_id FROM public.categories c JOIN ancestors a ON c.id = a.parent_id
+                        SELECT c.id, c.parent_id FROM categories c JOIN ancestors a ON c.id = a.parent_id
                     )
                     SELECT id FROM descendants
                     UNION
@@ -92,9 +92,9 @@ exports.getAllProducts = async (req, res) => {
 
         const query = `
             SELECT p.*, c.name as category_name, b.name as brand_name, b.slug as brand_slug
-            FROM public.products p 
-            LEFT JOIN public.categories c ON p.category_id = c.id 
-            LEFT JOIN public.brands b ON p.brand_id = b.id
+            FROM products p 
+            LEFT JOIN categories c ON p.category_id = c.id 
+            LEFT JOIN brands b ON p.brand_id = b.id
             ${whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : ''}
             ORDER BY ${orderBy}
         `;
@@ -116,14 +116,14 @@ exports.getProduct = async (req, res) => {
     try {
         const product = await pool.query(`
             SELECT p.*, c.name as category_name, c.slug as category_slug, b.name as brand_name, b.slug as brand_slug
-            FROM public.products p 
-            LEFT JOIN public.categories c ON p.category_id = c.id 
-            LEFT JOIN public.brands b ON p.brand_id = b.id
+            FROM products p 
+            LEFT JOIN categories c ON p.category_id = c.id 
+            LEFT JOIN brands b ON p.brand_id = b.id
             WHERE p.id = $1`, [req.params.id]);
 
         if (product.rowCount === 0) return res.status(404).json({ message: 'Product not found' });
 
-        const variants = await pool.query('SELECT * FROM public.product_variants WHERE product_id = $1', [req.params.id]);
+        const variants = await pool.query('SELECT * FROM product_variants WHERE product_id = $1', [req.params.id]);
 
         res.status(200).json({ status: 'success', data: { product: product.rows[0], variants: variants.rows } });
     } catch (error) {
@@ -136,14 +136,14 @@ exports.getProductBySlug = async (req, res) => {
     try {
         const product = await pool.query(`
             SELECT p.*, c.name as category_name, c.slug as category_slug, b.name as brand_name, b.slug as brand_slug
-            FROM public.products p 
-            LEFT JOIN public.categories c ON p.category_id = c.id 
-            LEFT JOIN public.brands b ON p.brand_id = b.id
+            FROM products p 
+            LEFT JOIN categories c ON p.category_id = c.id 
+            LEFT JOIN brands b ON p.brand_id = b.id
             WHERE p.slug = $1`, [req.params.slug]);
 
         if (product.rowCount === 0) return res.status(404).json({ message: 'Product not found' });
 
-        const variants = await pool.query('SELECT * FROM public.product_variants WHERE product_id = $1', [product.rows[0].id]);
+        const variants = await pool.query('SELECT * FROM product_variants WHERE product_id = $1', [product.rows[0].id]);
 
         res.status(200).json({ status: 'success', data: { product: product.rows[0], variants: variants.rows } });
     } catch (error) {
@@ -181,7 +181,7 @@ exports.createProduct = async (req, res) => {
         }
 
         const newProduct = await client.query(
-            `INSERT INTO public.products (name, slug, description, category_id, vendor_id, brand_id, price, discount, stock, status, images, attributes) 
+            `INSERT INTO products (name, slug, description, category_id, vendor_id, brand_id, price, discount, stock, status, images, attributes) 
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
             [name, slug, description, category_id, vendor_id || null, brand_id || null, price, discount, stock, status, JSON.stringify(uploadedImages), JSON.stringify(attributes || {})]
         );
@@ -206,7 +206,7 @@ exports.createProduct = async (req, res) => {
                 const vStock = parseInt(variant.stock) || 0;
 
                 await client.query(
-                    `INSERT INTO public.product_variants (product_id, name, sku, price, stock, variant_attributes, images) 
+                    `INSERT INTO product_variants (product_id, name, sku, price, stock, variant_attributes, images) 
                      VALUES ($1, $2, $3, $4, $5, $6, $7)`,
                     [productId, variant.name, variant.sku, vPrice, vStock, JSON.stringify(variant.variant_attributes || {}), JSON.stringify(uploadedVariantImages)]
                 );
@@ -256,7 +256,7 @@ exports.updateProduct = async (req, res) => {
         }
         
         const updatedProduct = await client.query(
-            `UPDATE public.products SET 
+            `UPDATE products SET 
                 name = COALESCE($1, name), 
                 slug = COALESCE($2, slug), 
                 description = COALESCE($3, description), 
@@ -302,14 +302,14 @@ exports.updateProduct = async (req, res) => {
 
                 if (variant.id) {
                     await client.query(
-                        `UPDATE public.product_variants SET 
+                        `UPDATE product_variants SET 
                             name = $1, sku = $2, price = $3, stock = $4, variant_attributes = $5, images = $6
                          WHERE id = $7 AND product_id = $8`,
                         [variant.name, variant.sku, variant.price, variant.stock, JSON.stringify(variant.variant_attributes || {}), JSON.stringify(finalVariantImages), variant.id, req.params.id]
                     );
                 } else {
                     await client.query(
-                        `INSERT INTO public.product_variants (product_id, name, sku, price, stock, variant_attributes, images) 
+                        `INSERT INTO product_variants (product_id, name, sku, price, stock, variant_attributes, images) 
                          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
                         [req.params.id, variant.name, variant.sku, variant.price, variant.stock, JSON.stringify(variant.variant_attributes || {}), JSON.stringify(finalVariantImages)]
                     );
@@ -331,7 +331,7 @@ exports.updateProduct = async (req, res) => {
 
 exports.deleteProduct = async (req, res) => {
     try {
-        const result = await pool.query('DELETE FROM public.products WHERE id = $1', [req.params.id]);
+        const result = await pool.query('DELETE FROM products WHERE id = $1', [req.params.id]);
         if (result.rowCount === 0) return res.status(404).json({ message: 'Product not found' });
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {

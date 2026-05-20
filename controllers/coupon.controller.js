@@ -2,7 +2,7 @@ const pool = require('../config/db');
 
 exports.getAllCoupons = async (req, res) => {
     try {
-        const coupons = await pool.query('SELECT * FROM public.coupons ORDER BY created_at DESC');
+        const coupons = await pool.query('SELECT * FROM coupons ORDER BY created_at DESC');
         res.status(200).json({ status: 'success', results: coupons.rowCount, data: { coupons: coupons.rows } });
     } catch (error) {
     console.error(error);
@@ -15,7 +15,7 @@ exports.getActiveCoupons = async (req, res) => {
         const userId = req.user?.id;
         let query = `
             SELECT id, code, discount_type, value, min_order_value, max_discount, expiry_date 
-            FROM public.coupons c
+            FROM coupons c
             WHERE status = 'active' 
             AND (expiry_date > NOW() OR expiry_date IS NULL) 
             AND (usage_limit IS NULL OR usage_count < usage_limit)
@@ -23,7 +23,7 @@ exports.getActiveCoupons = async (req, res) => {
         let params = [];
 
         if (userId) {
-            query += ` AND NOT EXISTS (SELECT 1 FROM public.orders o WHERE o.user_id = $1 AND o.coupon_id = c.id)`;
+            query += ` AND NOT EXISTS (SELECT 1 FROM orders o WHERE o.user_id = $1 AND o.coupon_id = c.id)`;
             params.push(userId);
         }
 
@@ -40,7 +40,7 @@ exports.getActiveCoupons = async (req, res) => {
 exports.getCouponByCode = async (req, res) => {
     try {
         const { code } = req.params;
-        const coupon = await pool.query(`SELECT * FROM public.coupons WHERE code = $1 AND status = 'active' AND (expiry_date > NOW() OR expiry_date IS NULL)`, [code]);
+        const coupon = await pool.query(`SELECT * FROM coupons WHERE code = $1 AND status = 'active' AND (expiry_date > NOW() OR expiry_date IS NULL)`, [code]);
 
         if (coupon.rowCount === 0) return res.status(404).json({ message: 'Coupon not found or expired' });
 
@@ -52,7 +52,7 @@ exports.getCouponByCode = async (req, res) => {
 
         if (req.user) {
             const userUsage = await pool.query(
-                'SELECT 1 FROM public.orders WHERE user_id = $1 AND coupon_id = $2 LIMIT 1',
+                'SELECT 1 FROM orders WHERE user_id = $1 AND coupon_id = $2 LIMIT 1',
                 [req.user.id, c.id]
             );
             if (userUsage.rowCount > 0) {
@@ -71,7 +71,7 @@ exports.createCoupon = async (req, res) => {
     try {
         const { code, discount_type, value, min_order_value, max_discount, expiry_date, usage_limit } = req.body;
         const newCoupon = await pool.query(
-            `INSERT INTO public.coupons (code, discount_type, value, min_order_value, max_discount, expiry_date, usage_limit) 
+            `INSERT INTO coupons (code, discount_type, value, min_order_value, max_discount, expiry_date, usage_limit) 
              VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
             [code, discount_type, value, min_order_value || 0, max_discount, expiry_date, usage_limit || 1]
         );
@@ -86,7 +86,7 @@ exports.updateCoupon = async (req, res) => {
     try {
         const { code, discount_type, value, min_order_value, max_discount, expiry_date, usage_limit, status } = req.body;
         const updatedCoupon = await pool.query(
-            `UPDATE public.coupons SET 
+            `UPDATE coupons SET 
                 code = COALESCE($1, code), 
                 discount_type = COALESCE($2, discount_type), 
                 value = COALESCE($3, value), 
@@ -108,7 +108,7 @@ exports.updateCoupon = async (req, res) => {
 
 exports.deleteCoupon = async (req, res) => {
     try {
-        const result = await pool.query('DELETE FROM public.coupons WHERE id = $1', [req.params.id]);
+        const result = await pool.query('DELETE FROM coupons WHERE id = $1', [req.params.id]);
         if (result.rowCount === 0) return res.status(404).json({ message: 'Coupon not found' });
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {

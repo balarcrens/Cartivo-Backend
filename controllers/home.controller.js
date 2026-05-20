@@ -2,14 +2,14 @@ const pool = require('../config/db');
 
 exports.getHomeData = async (req, res) => {
     try {
-        const bannersPromise = pool.query("SELECT * FROM public.hero_banners WHERE is_active = true ORDER BY display_order ASC");
+        const bannersPromise = pool.query("SELECT * FROM hero_banners WHERE is_active = true ORDER BY display_order ASC");
 
-        const categoriesPromise = pool.query("SELECT * FROM public.categories WHERE status = 'active' AND parent_id IS NULL ORDER BY created_at LIMIT 10");
+        const categoriesPromise = pool.query("SELECT * FROM categories WHERE status = 'active' AND parent_id IS NULL ORDER BY created_at LIMIT 10");
 
         const featuredPromise = pool.query(`
             SELECT p.*, b.name as brand_name 
-            FROM public.products p 
-            LEFT JOIN public.brands b ON p.brand_id = b.id 
+            FROM products p 
+            LEFT JOIN brands b ON p.brand_id = b.id 
             WHERE p.status = 'active' 
             ORDER BY p.created_at DESC 
             LIMIT 10
@@ -17,15 +17,15 @@ exports.getHomeData = async (req, res) => {
         
         const winterPromise = pool.query(`
             WITH RECURSIVE CategoryTree AS (
-                SELECT id FROM public.categories 
+                SELECT id FROM categories 
                 WHERE (slug ILIKE '%winter%' OR name ILIKE '%winter%')
                 UNION ALL
-                SELECT c.id FROM public.categories c
+                SELECT c.id FROM categories c
                 JOIN CategoryTree ct ON c.parent_id = ct.id
             )
             SELECT p.*, b.name as brand_name 
-            FROM public.products p 
-            LEFT JOIN public.brands b ON p.brand_id = b.id
+            FROM products p 
+            LEFT JOIN brands b ON p.brand_id = b.id
             WHERE p.category_id IN (SELECT id FROM CategoryTree)
             AND p.status = 'active' 
             LIMIT 10
@@ -33,23 +33,23 @@ exports.getHomeData = async (req, res) => {
 
         const trendingPromise = pool.query(`
             SELECT p.*, b.name as brand_name 
-            FROM public.products p 
-            LEFT JOIN public.brands b ON p.brand_id = b.id
+            FROM products p 
+            LEFT JOIN brands b ON p.brand_id = b.id
             WHERE p.status = 'active' 
             ORDER BY RANDOM() LIMIT 10
         `);
 
         const groceryPromise = pool.query(`
             WITH RECURSIVE CategoryTree AS (
-                SELECT id FROM public.categories 
+                SELECT id FROM categories 
                 WHERE (slug ILIKE '%grocery%' OR name ILIKE '%grocery%')
                 UNION ALL
-                SELECT c.id FROM public.categories c
+                SELECT c.id FROM categories c
                 JOIN CategoryTree ct ON c.parent_id = ct.id
             )
             SELECT p.*, b.name as brand_name 
-            FROM public.products p 
-            LEFT JOIN public.brands b ON p.brand_id = b.id
+            FROM products p 
+            LEFT JOIN brands b ON p.brand_id = b.id
             WHERE p.category_id IN (SELECT id FROM CategoryTree)
             AND p.status = 'active' 
             LIMIT 10
@@ -57,15 +57,15 @@ exports.getHomeData = async (req, res) => {
 
         const homeAppliancesPromise = pool.query(`
             WITH RECURSIVE CategoryTree AS (
-                SELECT id FROM public.categories 
+                SELECT id FROM categories 
                 WHERE (slug ILIKE '%home-appliance%' OR name ILIKE '%home appliance%')
                 UNION ALL
-                SELECT c.id FROM public.categories c
+                SELECT c.id FROM categories c
                 JOIN CategoryTree ct ON c.parent_id = ct.id
             )
             SELECT p.*, b.name as brand_name 
-            FROM public.products p 
-            LEFT JOIN public.brands b ON p.brand_id = b.id
+            FROM products p 
+            LEFT JOIN brands b ON p.brand_id = b.id
             WHERE p.category_id IN (SELECT id FROM CategoryTree)
             AND p.status = 'active' 
             LIMIT 10

@@ -16,12 +16,7 @@ const pool = new Pool({
 pool.connect()
     .then(client => {
         console.log('Connected to PostgreSQL');
-
-        return client.query('SET search_path TO public')
-            .then(() => {
-                console.log('Search path set to public');
-                client.release();
-            });
+        client.release();
     })
     .catch(err => {
         console.error('Database connection error:', err);

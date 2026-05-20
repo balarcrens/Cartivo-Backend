@@ -6,7 +6,7 @@ const { uploadToImageKit } = require('../config/imagekit');
 exports.getAllCategories = async (req, res) => {
     try {
         const { status } = req.query;
-        let query = 'SELECT * FROM public.categories';
+        let query = 'SELECT * FROM categories';
         let queryParams = [];
 
         if (status && status !== 'all') {
@@ -33,14 +33,14 @@ exports.getCategoryTree = async (req, res) => {
             WITH RECURSIVE category_tree AS (
                 -- Base case: Root categories
                 SELECT id, name, slug, parent_id, image, 0 as level
-                FROM public.categories
+                FROM categories
                 WHERE parent_id IS NULL AND status = 'active'
                 
                 UNION ALL
                 
                 -- Recursive step: Child categories
                 SELECT c.id, c.name, c.slug, c.parent_id, c.image, ct.level + 1
-                FROM public.categories c
+                FROM categories c
                 JOIN category_tree ct ON c.parent_id = ct.id
                 WHERE c.status = 'active'
             )
@@ -74,17 +74,17 @@ exports.getCategoryTree = async (req, res) => {
 
 exports.getCategoryBySlug = async (req, res) => {
     try {
-        const category = await pool.query('SELECT * FROM public.categories WHERE slug = $1', [req.params.slug]);
+        const category = await pool.query('SELECT * FROM categories WHERE slug = $1', [req.params.slug]);
         if (category.rowCount === 0) return res.status(404).json({ message: 'Category not found' });
 
         const pathQuery = `
             WITH RECURSIVE cat_path AS (
                 SELECT id, name, slug, parent_id, 0 as depth
-                FROM public.categories
+                FROM categories
                 WHERE id = $1
                 UNION ALL
                 SELECT c.id, c.name, c.slug, c.parent_id, cp.depth + 1
-                FROM public.categories c
+                FROM categories c
                 JOIN cat_path cp ON c.id = cp.parent_id
             )
             SELECT * FROM cat_path ORDER BY depth DESC;
@@ -115,7 +115,7 @@ exports.createCategory = async (req, res) => {
         }
 
         const newCategory = await pool.query(
-            'INSERT INTO public.categories (name, slug, parent_id, image, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            'INSERT INTO categories (name, slug, parent_id, image, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
             [name, slug, parent_id || null, image, status || 'active']
         );
         res.status(201).json({ status: 'success', data: { category: newCategory.rows[0] } });
@@ -135,7 +135,7 @@ exports.updateCategory = async (req, res) => {
         }
 
         const updatedCategory = await pool.query(
-            'UPDATE public.categories SET name = COALESCE($1, name), slug = COALESCE($2, slug), parent_id = COALESCE($3, parent_id), image = COALESCE($4, image), status = COALESCE($5, status) WHERE id = $6 RETURNING *',
+            'UPDATE categories SET name = COALESCE($1, name), slug = COALESCE($2, slug), parent_id = COALESCE($3, parent_id), image = COALESCE($4, image), status = COALESCE($5, status) WHERE id = $6 RETURNING *',
             [name, slug, parent_id, image, status, req.params.id]
         );
         if (updatedCategory.rowCount === 0) return res.status(404).json({ message: 'Category not found' });
@@ -148,7 +148,7 @@ exports.updateCategory = async (req, res) => {
 
 exports.deleteCategory = async (req, res) => {
     try {
-        const result = await pool.query('DELETE FROM public.categories WHERE id = $1', [req.params.id]);
+        const result = await pool.query('DELETE FROM categories WHERE id = $1', [req.params.id]);
         if (result.rowCount === 0) return res.status(404).json({ message: 'Category not found' });
         res.status(204).json({ status: 'success', data: null });
     } catch (error) {

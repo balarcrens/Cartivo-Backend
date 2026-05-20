@@ -9,7 +9,7 @@ const submitContactMessage = async (req, res) => {
         }
 
         const result = await pool.query(
-            'INSERT INTO public.contact_messages (name, email, subject, message) VALUES ($1, $2, $3, $4) RETURNING *',
+            'INSERT INTO contact_messages (name, email, subject, message) VALUES ($1, $2, $3, $4) RETURNING *',
             [name, email, subject, message]
         );
 
@@ -26,7 +26,7 @@ const submitContactMessage = async (req, res) => {
 
 const getAllContactMessages = async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM public.contact_messages ORDER BY created_at DESC');
+        const result = await pool.query('SELECT * FROM contact_messages ORDER BY created_at DESC');
         res.status(200).json({
             status: 'success',
             results: result.rows.length,
@@ -44,7 +44,7 @@ const updateContactStatus = async (req, res) => {
         const { status } = req.body;
 
         const result = await pool.query(
-            'UPDATE public.contact_messages SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+            'UPDATE contact_messages SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
             [status, id]
         );
 
@@ -66,7 +66,7 @@ const deleteContactMessage = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const result = await pool.query('DELETE FROM public.contact_messages WHERE id = $1 RETURNING *', [id]);
+        const result = await pool.query('DELETE FROM contact_messages WHERE id = $1 RETURNING *', [id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ status: 'error', message: 'Message not found' });
