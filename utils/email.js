@@ -1,27 +1,19 @@
-const dns = require('dns');
-dns.setDefaultResultOrder('ipv4first');
+const { Resend } = require('resend');
 
-const nodemailer = require('nodemailer');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (options) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-        },
-    });
-
-    const message = {
-        from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
-        to: options.email,
-        subject: options.subject,
-        html: options.html,
-    };
-
-    const info = await transporter.sendMail(message);
-
-    console.log('Message sent:', info.messageId);
+    try {
+        const data = await resend.emails.send({
+            from: 'Cartivo <onboarding@resend.dev>',
+            to: options.email,
+            subject: options.subject,
+            html: options.html,
+        });
+    } catch (error) {
+        console.log(error.message);
+        throw new Error('Email sending failed');
+    }
 };
 
 const getResetPasswordTemplate = (url, name) => {
